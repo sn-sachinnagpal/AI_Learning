@@ -1,0 +1,30 @@
+name: Gemini Issue Assistant
+
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+
+jobs:
+  run-gemini:
+    if: contains(github.event.comment.body, '@gemini-cli') || contains(github.event.issue.body, '@gemini-cli')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gemini Assistant
+        uses: google-github-actions/run-gemini-cli@v1
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          github_issue_number: ${{ github.event.issue.number }}
